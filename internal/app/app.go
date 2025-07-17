@@ -3,18 +3,20 @@ package app
 import (
 	"log"
 
+	"vk-internship/internal/cache"
 	"vk-internship/internal/config"
 	"vk-internship/internal/database"
 )
 
 type App struct {
 	Database database.Database
+	Cache    cache.Cache
 }
 
 func Run() {
 	var app App
 
-	servercfg, err := config.LoadServerConfig()
+	_, err := config.LoadServerConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -25,6 +27,11 @@ func Run() {
 	}
 
 	err = app.registerDatabase(storagecfg.DBType)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = app.registerCache(storagecfg.CacheType)
 	if err != nil {
 		log.Fatal(err)
 	}
