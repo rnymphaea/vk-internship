@@ -7,7 +7,7 @@ import (
 )
 
 type RedisConfig struct {
-	Addr        string        `env:"REDIS_ADDR,required"`
+	Addr        string        `env:"REDIS_ADDR"`
 	Password    string        `env:"REDIS_PASSWORD,required"`
 	User        string        `env:"REDIS_USER,required"`
 	DB          int           `env:"REDIS_DB,required"`
