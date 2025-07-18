@@ -15,11 +15,27 @@ services:
     ports:
       - "${POSTGRES_PORT}:5432"
     restart: unless-stopped
+    networks:
+      - marketplace-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 5
+
+  migrate:
+    image: migrate/migrate
+    container_name: marketplace-migrate 
+    env_file:
+      - .env
+    volumes:
+      - ./migrations/${DB_TYPE}:/migrations
+    command: ["-path", "/migrations", "-database",  "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB_NAME}?sslmode=${POSTGRES_SSL_MODE}", "up" ]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - marketplace-network
   
   redis:
     image: redis:8-alpine
@@ -44,6 +60,8 @@ services:
         echo "user $REDIS_USER on >$REDIS_PASSWORD ~* +@all" >> /usr/local/etc/redis/users.acl &&
         redis-server /usr/local/etc/redis/redis.conf --aclfile /usr/local/etc/redis/users.acl
       '
+    networks:
+      - marketplace-network
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 5s
@@ -65,6 +83,8 @@ services:
       redis:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - marketplace-network
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "${PORT}"]
       interval: 5s
@@ -74,3 +94,6 @@ services:
 volumes:
   postgres_data:
   redis_data:
+
+networks:
+  marketplace-network:
