@@ -45,7 +45,6 @@ func (app *App) registerCache(cacheType string) error {
 	switch cacheType {
 	case "redis":
 		cfg, err := config.LoadRedisConfig()
-		fmt.Println(cfg)
 		if err != nil {
 			return err
 		}
