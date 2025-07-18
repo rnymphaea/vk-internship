@@ -30,7 +30,7 @@ services:
       REDIS_USER: ${REDIS_USER}
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:6379"
     volumes:
       - redis_data:/data
     command: >
@@ -58,7 +58,7 @@ services:
     env_file: 
       - .env
     ports:
-      - "8080:8080"
+      - "${PORT}:8080"
     depends_on:
       postgres:
         condition: service_healthy
