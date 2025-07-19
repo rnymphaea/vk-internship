@@ -12,7 +12,7 @@ import (
 	zerologger "vk-internship/internal/logger/zerolog"
 )
 
-func (app *App) registerDatabase(dbType string) error {
+func (app *App) registerDatabase(dbType string, log logger.Logger) error {
 	var (
 		db  database.Database
 		err error
@@ -25,7 +25,7 @@ func (app *App) registerDatabase(dbType string) error {
 			return err
 		}
 
-		db, err = postgres.New(cfg)
+		db, err = postgres.New(cfg, log)
 		if err != nil {
 			return err
 		}
@@ -38,7 +38,7 @@ func (app *App) registerDatabase(dbType string) error {
 	return err
 }
 
-func (app *App) registerCache(cacheType string) error {
+func (app *App) registerCache(cacheType string, log logger.Logger) error {
 	var (
 		cache cache.Cache
 		err   error
@@ -51,7 +51,7 @@ func (app *App) registerCache(cacheType string) error {
 			return err
 		}
 
-		cache, err = redis.New(cfg)
+		cache, err = redis.New(cfg, log)
 		if err != nil {
 			return err
 		}

@@ -7,13 +7,17 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"vk-internship/internal/config"
+	"vk-internship/internal/logger"
 )
 
 type PostgresDB struct {
-	db *pgxpool.Pool
+	db  *pgxpool.Pool
+	log logger.Logger
 }
 
-func New(cfg *config.PostgresConfig) (*PostgresDB, error) {
+func New(cfg *config.PostgresConfig, log logger.Logger) (*PostgresDB, error) {
+	log.Debug("creating new postgres pool")
+
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.DBName, cfg.SSLMode)
 
@@ -22,9 +26,21 @@ func New(cfg *config.PostgresConfig) (*PostgresDB, error) {
 		return nil, fmt.Errorf("failed to create pool: %w", err)
 	}
 
-	return &PostgresDB{db: pool}, nil
+	p := &PostgresDB{
+		db:  pool,
+		log: log.Component("postgres"),
+	}
+
+	if err := p.Ping(context.TODO()); err != nil {
+		return nil, err
+	}
+
+	p.log.Info("connected to postgres")
+
+	return p, nil
 }
 
 func (p *PostgresDB) Ping(ctx context.Context) error {
+	p.log.Debug("ping postgres")
 	return p.db.Ping(ctx)
 }

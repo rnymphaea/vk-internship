@@ -23,6 +23,11 @@ func Run() {
 		log.Fatal(err)
 	}
 
+	err = app.registerLogger(loggercfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	_, err = config.LoadServerConfig()
 	if err != nil {
 		log.Fatal(err)
@@ -33,12 +38,12 @@ func Run() {
 		log.Fatal(err)
 	}
 
-	err = app.registerDatabase(storagecfg.DBType)
+	err = app.registerDatabase(storagecfg.DBType, app.Logger)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = app.registerCache(storagecfg.CacheType)
+	err = app.registerCache(storagecfg.CacheType, app.Logger)
 	if err != nil {
 		log.Fatal(err)
 	}
