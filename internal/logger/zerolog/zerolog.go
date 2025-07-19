@@ -4,7 +4,6 @@ import (
 	"io"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/rs/zerolog"
 
@@ -24,13 +23,13 @@ func New(cfg *config.LoggerConfig) *Logger {
 	if cfg.Pretty {
 		output = zerolog.ConsoleWriter{
 			Out:        os.Stdout,
-			TimeFormat: time.RFC3339,
+			TimeFormat: zerolog.TimeFormatUnix,
 		}
 	} else {
 		output = os.Stdout
 	}
 
-	base := zerolog.New(output).With().Timestamp().Logger()
+	base := zerolog.New(output).With().Timestamp().CallerWithSkipFrameCount(3).Logger()
 
 	return &Logger{base}
 }
