@@ -22,3 +22,7 @@ down:
 .PHONY: register
 register:
 	curl -d '{"username":"username1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:8080/register
+
+.PHONY: login
+login:
+	curl -d '{"username":"username1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:8080/login

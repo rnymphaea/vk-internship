@@ -21,6 +21,7 @@ func NewRouter(cfg *config.ServerConfig, log logger.Logger, db database.Database
 
 	router.Get("/", handler.Home)
 	router.Post("/register", handler.RegistrationHandler(cfg, log, db))
+	router.Post("/login", handler.LoginHandler(cfg, log, db))
 
 	return router
 }
