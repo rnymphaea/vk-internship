@@ -81,6 +81,8 @@ func RegistrationHandler(cfg *config.ServerConfig, log logger.Logger, db databas
 			return
 		}
 
+		w.Header().Set("Authorization", "Bearer "+token)
+
 		response := RegistrationResponse{
 			ID:        createdUser.ID,
 			Username:  createdUser.Username,
