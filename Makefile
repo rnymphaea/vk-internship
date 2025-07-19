@@ -18,3 +18,7 @@ up:
 .PHONY: down
 down:
 	docker-compose down -v
+
+.PHONY: register
+register:
+	curl -d '{"username":"username1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:8080/register

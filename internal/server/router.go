@@ -1,0 +1,26 @@
+package server
+
+import (
+	"github.com/go-chi/chi/v5"
+
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
+	_ "vk-internship/internal/cache"
+	"vk-internship/internal/config"
+	"vk-internship/internal/database"
+	"vk-internship/internal/logger"
+	"vk-internship/internal/server/handler"
+	"vk-internship/internal/server/middleware"
+)
+
+func NewRouter(cfg *config.ServerConfig, log logger.Logger, db database.Database) *chi.Mux {
+	router := chi.NewMux()
+	router.Use(chimiddleware.RequestID)
+	router.Use(chimiddleware.RealIP)
+	router.Use(chimiddleware.Recoverer)
+	router.Use(middleware.LoggingMiddleware(log))
+
+	router.Get("/", handler.Home)
+	router.Post("/register", handler.RegistrationHandler(cfg, log, db))
+
+	return router
+}

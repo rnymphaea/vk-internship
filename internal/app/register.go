@@ -83,6 +83,7 @@ func (app *App) registerLogger(cfg *config.LoggerConfig) error {
 }
 
 func (app *App) registerServer(servercfg *config.ServerConfig, log logger.Logger) {
-	srv := server.New(servercfg, nil, log)
+	router := server.NewRouter(servercfg, log, app.Database)
+	srv := server.New(servercfg, router, log)
 	app.Server = srv
 }

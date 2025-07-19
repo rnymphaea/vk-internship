@@ -3,7 +3,6 @@ package zerologger
 import (
 	"io"
 	"os"
-	"strings"
 
 	"github.com/rs/zerolog"
 
@@ -50,8 +49,16 @@ func (l *Logger) Info(msg string) {
 	l.Logger.Info().Msg(msg)
 }
 
+func (l *Logger) Infof(msg string, fields map[string]interface{}) {
+	l.Logger.Info().Fields(fields).Msg(msg)
+}
+
 func (l *Logger) Warn(msg string) {
 	l.Logger.Warn().Msg(msg)
+}
+
+func (l *Logger) Warnf(msg string, fields map[string]interface{}) {
+	l.Logger.Warn().Fields(fields).Msg(msg)
 }
 
 func (l *Logger) Error(err error, msg string) {

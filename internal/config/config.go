@@ -12,8 +12,9 @@ type ServerConfig struct {
 	WriteTimeout time.Duration `env:"WRITE_TIMEOUT" envDefault:"30s"`
 	IdleTimeout  time.Duration `env:"IDLE_TIMEOUT" envDefault:"60s"`
 
-	JWTSecret string        `env:"JWT_SECRET",required`
+	JWTSecret string        `env:"JWT_SECRET,required"`
 	JWTTTL    time.Duration `env:"JWT_TTL" envDefault:"24h"`
+	JWTIssuer string        `env:"JWT_ISSUER,required"`
 }
 
 type StorageConfig struct {

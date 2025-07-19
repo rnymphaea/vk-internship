@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -10,9 +11,12 @@ import (
 	"vk-internship/internal/logger"
 )
 
+const uniqueViolationCode = "23505"
+
 type PostgresDB struct {
-	db  *pgxpool.Pool
-	log logger.Logger
+	db      *pgxpool.Pool
+	log     logger.Logger
+	timeout time.Duration
 }
 
 func New(cfg *config.PostgresConfig, log logger.Logger) (*PostgresDB, error) {
@@ -21,14 +25,15 @@ func New(cfg *config.PostgresConfig, log logger.Logger) (*PostgresDB, error) {
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.DBName, cfg.SSLMode)
 
-	pool, err := pgxpool.New(context.Background(), connStr)
+	pool, err := pgxpool.New(context.TODO(), connStr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create pool: %w", err)
 	}
 
 	p := &PostgresDB{
-		db:  pool,
-		log: log.Component("postgres"),
+		db:      pool,
+		log:     log.Component("postgres"),
+		timeout: cfg.Timeout,
 	}
 
 	if err := p.Ping(context.TODO()); err != nil {

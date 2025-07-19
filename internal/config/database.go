@@ -19,6 +19,8 @@ type PostgresConfig struct {
 	PoolMaxConnLifetime   time.Duration `env:"POSTGRES_POOL_MAX_CONN_LIFETIME" envDefault:"1h"`
 	PoolMaxConnIdleTime   time.Duration `env:"POSTGRES_POOL_MAX_CONN_IDLE_TIME" envDefault:"30m"`
 	PoolHealthCheckPeriod time.Duration `env:"POSTGRES_POOL_HEALTHCHECK_PERIOD" envDefault:"1m"`
+
+	Timeout time.Duration `env:"POSTGRES_TIMEOUT" envDefault:"5s"`
 }
 
 func LoadPostgresConfig() (*PostgresConfig, error) {
