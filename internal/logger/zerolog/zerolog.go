@@ -16,7 +16,11 @@ type Logger struct {
 }
 
 func New(cfg *config.LoggerConfig) *Logger {
-	logLevel := parseLogLevel(cfg.Level)
+	logLevel, err := zerolog.ParseLevel(cfg.Level)
+	if err != nil {
+		logLevel = zerolog.DebugLevel
+	}
+
 	zerolog.SetGlobalLevel(logLevel)
 
 	var output io.Writer
@@ -32,23 +36,6 @@ func New(cfg *config.LoggerConfig) *Logger {
 	base := zerolog.New(output).With().Timestamp().CallerWithSkipFrameCount(3).Logger()
 
 	return &Logger{base}
-}
-
-func parseLogLevel(level string) zerolog.Level {
-	switch strings.ToLower(level) {
-	case "debug":
-		return zerolog.DebugLevel
-	case "info":
-		return zerolog.InfoLevel
-	case "warn":
-		return zerolog.WarnLevel
-	case "error":
-		return zerolog.ErrorLevel
-	case "fatal":
-		return zerolog.FatalLevel
-	default:
-		return zerolog.InfoLevel
-	}
 }
 
 func (l *Logger) Debug(msg string) {
