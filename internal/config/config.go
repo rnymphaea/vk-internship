@@ -7,7 +7,11 @@ import (
 )
 
 type ServerConfig struct {
-	Port      string        `env:"PORT,required"`
+	Port         string        `env:"PORT,required"`
+	ReadTimeout  time.Duration `env:"READ_TIMEOUT" envDefault:"15s"`
+	WriteTimeout time.Duration `env:"WRITE_TIMEOUT" envDefault:"30s"`
+	IdleTimeout  time.Duration `env:"IDLE_TIMEOUT" envDefault:"60s"`
+
 	JWTSecret string        `env:"JWT_SECRET",required`
 	JWTTTL    time.Duration `env:"JWT_TTL" envDefault:"24h"`
 }

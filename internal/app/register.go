@@ -10,6 +10,7 @@ import (
 	"vk-internship/internal/database/postgres"
 	"vk-internship/internal/logger"
 	zerologger "vk-internship/internal/logger/zerolog"
+	"vk-internship/internal/server"
 )
 
 func (app *App) registerDatabase(dbType string, log logger.Logger) error {
@@ -79,4 +80,9 @@ func (app *App) registerLogger(cfg *config.LoggerConfig) error {
 
 	app.Logger = logger
 	return err
+}
+
+func (app *App) registerServer(servercfg *config.ServerConfig, log logger.Logger) {
+	srv := server.New(servercfg, nil, log)
+	app.Server = srv
 }

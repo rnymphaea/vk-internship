@@ -55,6 +55,10 @@ func (l *Logger) Debug(msg string) {
 	l.Logger.Debug().Msg(msg)
 }
 
+func (l *Logger) Debugf(msg string, fields map[string]interface{}) {
+	l.Logger.Debug().Fields(fields).Msg(msg)
+}
+
 func (l *Logger) Info(msg string) {
 	l.Logger.Info().Msg(msg)
 }
