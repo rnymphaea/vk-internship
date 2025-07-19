@@ -6,17 +6,24 @@ import (
 	"vk-internship/internal/cache"
 	"vk-internship/internal/config"
 	"vk-internship/internal/database"
+	"vk-internship/internal/logger"
 )
 
 type App struct {
 	Database database.Database
 	Cache    cache.Cache
+	Logger   logger.Logger
 }
 
 func Run() {
 	var app App
 
-	_, err := config.LoadServerConfig()
+	loggercfg, err := config.LoadLoggerConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = config.LoadServerConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,5 +43,10 @@ func Run() {
 		log.Fatal(err)
 	}
 
-	log.Println("Config loaded successfully!")
+	err = app.registerLogger(loggercfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	app.Logger.Info("config loaded successfully")
 }

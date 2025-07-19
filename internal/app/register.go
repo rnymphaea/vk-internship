@@ -8,6 +8,8 @@ import (
 	"vk-internship/internal/config"
 	"vk-internship/internal/database"
 	"vk-internship/internal/database/postgres"
+	"vk-internship/internal/logger"
+	zerologger "vk-internship/internal/logger/zerolog"
 )
 
 func (app *App) registerDatabase(dbType string) error {
@@ -59,5 +61,22 @@ func (app *App) registerCache(cacheType string) error {
 	}
 
 	app.Cache = cache
+	return err
+}
+
+func (app *App) registerLogger(cfg *config.LoggerConfig) error {
+	var (
+		logger logger.Logger
+		err    error
+	)
+
+	switch cfg.Type {
+	case "zerolog":
+		logger = zerologger.New(cfg)
+	default:
+		return fmt.Errorf("logger type [%s] is not supported", cfg.Type)
+	}
+
+	app.Logger = logger
 	return err
 }

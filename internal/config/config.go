@@ -17,6 +17,12 @@ type StorageConfig struct {
 	CacheType string `env:"CACHE_TYPE,required"`
 }
 
+type LoggerConfig struct {
+	Type   string `env:"LOGGER_TYPE" envDefault:"zerolog"`
+	Level  string `env:"LOGGER_LEVEL" envDefault:"info"`
+	Pretty bool   `env:"LOGGER_PRETTY" envDefault:"false"`
+}
+
 func LoadServerConfig() (*ServerConfig, error) {
 	var cfg ServerConfig
 	if err := env.Parse(&cfg); err != nil {
@@ -28,6 +34,15 @@ func LoadServerConfig() (*ServerConfig, error) {
 
 func LoadStorageConfig() (*StorageConfig, error) {
 	var cfg StorageConfig
+	if err := env.Parse(&cfg); err != nil {
+		return nil, err
+	}
+
+	return &cfg, nil
+}
+
+func LoadLoggerConfig() (*LoggerConfig, error) {
+	var cfg LoggerConfig
 	if err := env.Parse(&cfg); err != nil {
 		return nil, err
 	}
