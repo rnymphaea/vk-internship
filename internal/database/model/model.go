@@ -12,12 +12,13 @@ type User struct {
 }
 
 type Advertisement struct {
-	ID          string    `json:"id"`
-	AuthorID    string    `json:"author_id"`
-	Caption     string    `json:"caption"`
-	Description string    `json:"description"`
-	ImageURL    string    `json:"image_url"`
-	Price       int       `json:"price"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID             string    `json:"id"`
+	AuthorID       string    `json:"author_id"`
+	AuthorUsername string    `json:"author_username"`
+	Caption        string    `json:"caption"`
+	Description    string    `json:"description"`
+	ImageURL       string    `json:"image_url"`
+	Price          int       `json:"price"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }

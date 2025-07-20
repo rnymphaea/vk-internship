@@ -19,7 +19,7 @@ type CreateAdRequest struct {
 	Price       float64 `json:"price" validate:"required,min=0"`
 }
 
-type AdResponse struct {
+type CreateAdResponse struct {
 	ID          string    `json:"id"`
 	AuthorID    string    `json:"author_id"`
 	Caption     string    `json:"caption"`
@@ -72,7 +72,7 @@ func CreateAdHandler(cfg *config.ServerConfig, log logger.Logger, db database.Da
 			return
 		}
 
-		response := AdResponse{
+		response := CreateAdResponse{
 			ID:          createdAd.ID,
 			AuthorID:    createdAd.AuthorID,
 			Caption:     createdAd.Caption,

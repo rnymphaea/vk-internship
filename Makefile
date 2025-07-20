@@ -39,7 +39,47 @@ endif
 		-H "Authorization: Bearer $(TOKEN)" \
 		-X POST http://localhost:8080/ads
 
+.PHONY: ads
+ads:
+ifndef TOKEN
+	$(warning TOKEN not specified, making request without authentication)
+	curl -v "http://localhost:8080/ads?page=1&page_size=10"
+else
+	curl -v -H "Authorization: Bearer $(TOKEN)" \
+		"http://localhost:8080/ads?page=1&page_size=10"
+endif
+
+.PHONY: ads_filtered
+ads_filtered:
+ifndef TOKEN
+	$(warning TOKEN not specified, making request without authentication)
+	curl -v "http://localhost:8080/ads?page=1&page_size=10&sort_by=created_at&order=ASC"
+else
+	curl -v -H "Authorization: Bearer $(TOKEN)" \
+		"http://localhost:8080/ads?page=1&page_size=10&sort_by=created_at&order=ASC"
+endif
+
 .PHONY: check_ads_db
 check_ads_db:
 	docker exec marketplace-db psql -U $(DB_USER) -d $(DB_NAME) -c "SELECT * FROM advertisements;"
+
+.PHONY: help
+help:
+	@echo "Available targets:"
+	@echo "  all          - Build and start containers"
+	@echo "  build        - Build containers"
+	@echo "  up           - Start containers"
+	@echo "  down         - Stop and remove containers"
+	@echo "  register     - Register test user"
+	@echo "  login        - Login test user (get TOKEN)"
+	@echo "  create_ad    - Create advertisement (requires TOKEN)"
+	@echo "  ads          - Get ads list (optional TOKEN)"
+	@echo "  ads_filtered - Get filtered ads (optional TOKEN)"
+	@echo "  check_ads_db - View ads in database"
+	@echo ""
+	@echo "Usage examples:"
+	@echo "  make login"
+	@echo "  make create_ad TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+	@echo "  make ads TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+	@echo "  make ads (without auth)"
 

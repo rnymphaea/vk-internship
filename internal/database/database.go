@@ -13,6 +13,7 @@ type Database interface {
 	GetUserByUsername(username string) (*model.User, error)
 
 	CreateAd(ad *model.Advertisement) (*model.Advertisement, error)
+	GetAds(ctx context.Context, sortBy, order string, minPrice, maxPrice *int, page, pageSize int) ([]*model.Advertisement, int, error)
 }
 
 var (

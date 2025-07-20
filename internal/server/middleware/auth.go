@@ -10,7 +10,7 @@ import (
 	"vk-internship/internal/utils"
 )
 
-func AuthMiddleware(cfg *config.ServerConfig, log logger.Logger) func(http.Handler) http.Handler {
+func AuthRequiredMiddleware(cfg *config.ServerConfig, log logger.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
@@ -39,6 +39,31 @@ func AuthMiddleware(cfg *config.ServerConfig, log logger.Logger) func(http.Handl
 			ctx := context.WithValue(r.Context(), "userID", claims.UserID)
 			ctx = context.WithValue(ctx, "username", claims.Username)
 
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
+func AuthOptionalMiddleware(cfg *config.ServerConfig, log logger.Logger) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			authHeader := r.Header.Get("Authorization")
+			if authHeader != "" {
+				parts := strings.Split(authHeader, " ")
+				if len(parts) == 2 && parts[0] == "Bearer" {
+					token := parts[1]
+
+					if claims, err := utils.VerifyJWTToken(cfg, token); err == nil {
+						ctx = context.WithValue(ctx, "userID", claims.UserID)
+						ctx = context.WithValue(ctx, "username", claims.Username)
+					} else {
+						log.Warnf("invalid token", map[string]interface{}{"error": err.Error()})
+					}
+				} else {
+					log.Warn("invalid authorization format")
+				}
+			}
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
