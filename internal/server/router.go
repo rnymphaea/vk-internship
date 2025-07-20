@@ -23,5 +23,9 @@ func NewRouter(cfg *config.ServerConfig, log logger.Logger, db database.Database
 	router.Post("/register", handler.RegistrationHandler(cfg, log, db))
 	router.Post("/login", handler.LoginHandler(cfg, log, db))
 
+	router.Group(func(r chi.Router) {
+		r.Use(middleware.AuthMiddleware(cfg, log))
+		r.Post("/ads", handler.CreateAdHandler(cfg, log, db))
+	})
 	return router
 }

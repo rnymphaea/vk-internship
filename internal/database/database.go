@@ -11,6 +11,8 @@ type Database interface {
 	Ping(ctx context.Context) error
 	CreateUser(user *model.User) (*model.User, error)
 	GetUserByUsername(username string) (*model.User, error)
+
+	CreateAd(ad *model.Advertisement) (*model.Advertisement, error)
 }
 
 var (
