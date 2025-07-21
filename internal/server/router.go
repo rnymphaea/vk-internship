@@ -23,11 +23,14 @@ func NewRouter(cfg *config.ServerConfig, log logger.Logger, db database.Database
 	router.Post("/register", handler.RegistrationHandler(cfg, log, db))
 	router.Post("/login", handler.LoginHandler(cfg, log, db))
 
-	router.With(middleware.AuthOptionalMiddleware(cfg, log)).Get("/ads", handler.GetAdsHandler(cfg, log, db))
+	router.With(middleware.AuthOptionalMiddleware(cfg, log)).Get("/ads", handler.GetAdsHandler(log, db))
+	router.With(middleware.AuthOptionalMiddleware(cfg, log)).Get("/ads/{id}", handler.GetAdHandler(log, db))
 
 	router.Group(func(r chi.Router) {
 		r.Use(middleware.AuthRequiredMiddleware(cfg, log))
 		r.Post("/ads", handler.CreateAdHandler(cfg, log, db))
+		r.Delete("/ads/{id}", handler.DeleteAdHandler(log, db))
+		r.Put("/ads/{id}", handler.UpdateAdHandler(log, db))
 	})
 
 	return router

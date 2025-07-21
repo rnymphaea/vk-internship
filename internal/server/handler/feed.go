@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"vk-internship/internal/config"
 	"vk-internship/internal/database"
 	"vk-internship/internal/logger"
 )
@@ -36,7 +35,7 @@ var ValidSorts = map[string]struct{}{
 	"price":      {},
 }
 
-func GetAdsHandler(cfg *config.ServerConfig, log logger.Logger, db database.Database) http.HandlerFunc {
+func GetAdsHandler(log logger.Logger, db database.Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		query := r.URL.Query()
 

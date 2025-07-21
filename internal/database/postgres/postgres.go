@@ -11,7 +11,10 @@ import (
 	"vk-internship/internal/logger"
 )
 
-const uniqueViolationCode = "23505"
+const (
+	uniqueViolationCode           = "23505"
+	invalidTextRepresentationCode = "22P02"
+)
 
 type PostgresDB struct {
 	db      *pgxpool.Pool

@@ -19,7 +19,7 @@ up:
 
 .PHONY: down
 down:
-	docker-compose down -v
+	docker-compose down
 
 .PHONY: register
 register:
@@ -39,25 +39,62 @@ endif
 		-H "Authorization: Bearer $(TOKEN)" \
 		-X POST http://localhost:8080/ads
 
-.PHONY: ads
-ads:
+.PHONY: get_ad
+get_ad:
+ifndef ID
+	$(error ID is required. Example: make get_ad ID=123)
+endif
+ifndef TOKEN
+	$(warning No TOKEN provided, making request without authentication)
+	curl -v "http://localhost:8080/ads/$(ID)"
+else
+	curl -v -H "Authorization: Bearer $(TOKEN)" \
+		"http://localhost:8080/ads/$(ID)"
+endif
+
+.PHONY: get_ads
+get_ads:
 ifndef TOKEN
 	$(warning TOKEN not specified, making request without authentication)
 	curl -v "http://localhost:8080/ads?page=1&page_size=10"
 else
-	curl -v -H "Authorization: Bearer $(TOKEN)" \
+	curl -v -H "Authorization: Vearer $(TOKEN)" \
 		"http://localhost:8080/ads?page=1&page_size=10"
 endif
 
-.PHONY: ads_filtered
-ads_filtered:
+.PHONY: get_ads_filtered
+get_ads_filtered:
 ifndef TOKEN
 	$(warning TOKEN not specified, making request without authentication)
 	curl -v "http://localhost:8080/ads?page=1&page_size=10&sort_by=created_at&order=ASC"
 else
-	curl -v -H "Authorization: Bearer $(TOKEN)" \
+	curl -v -H "Authorization: Vearer $(TOKEN)" \
 		"http://localhost:8080/ads?page=1&page_size=10&sort_by=created_at&order=ASC"
 endif
+
+.PHONY: delete_ad
+delete_ad:
+ifndef TOKEN
+	$(error TOKEN is required. Example: make delete_ad TOKEN=your_token ID=123)
+endif
+ifndef ID
+	$(error ID is required. Example: make delete_ad TOKEN=your_token ID=123)
+endif
+	curl -v -H "Authorization: Bearer $(TOKEN)" \
+		-X DELETE "http://localhost:8080/ads/$(ID)"
+
+.PHONY: update_ad
+update_ad:
+ifndef TOKEN
+	$(error TOKEN is required. Example: make update_ad TOKEN=your_token ID=123)
+endif
+ifndef ID
+	$(error ID is required. Example: make update_ad TOKEN=your_token ID=123)
+endif
+	curl -v -d '{"caption":"updated", "description":"updated description", "price":200}' \
+		-H "Content-Type: application/json" \
+		-H "Authorization: Bearer $(TOKEN)" \
+		-X PUT "http://localhost:8080/ads/$(ID)"
 
 .PHONY: check_ads_db
 check_ads_db:
@@ -75,6 +112,8 @@ help:
 	@echo "  create_ad    - Create advertisement (requires TOKEN)"
 	@echo "  ads          - Get ads list (optional TOKEN)"
 	@echo "  ads_filtered - Get filtered ads (optional TOKEN)"
+	@echo "  update_ad    - Update advertisement (requires TOKEN and ID)"
+	@echo "  delete_ad    - Delete advertisement (requires TOKEN and ID)"
 	@echo "  check_ads_db - View ads in database"
 	@echo ""
 	@echo "Usage examples:"

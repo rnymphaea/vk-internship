@@ -22,7 +22,7 @@ func AuthRequiredMiddleware(cfg *config.ServerConfig, log logger.Logger) func(ht
 
 			parts := strings.Split(authHeader, " ")
 			if len(parts) != 2 || parts[0] != "Bearer" {
-				log.Warn("invalid authorization format")
+				log.Warnf("invalid authorization format", map[string]interface{}{"auth_header": authHeader})
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return
 			}
@@ -48,9 +48,11 @@ func AuthOptionalMiddleware(cfg *config.ServerConfig, log logger.Logger) func(ht
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
+
 			authHeader := r.Header.Get("Authorization")
 			if authHeader != "" {
 				parts := strings.Split(authHeader, " ")
+
 				if len(parts) == 2 && parts[0] == "Bearer" {
 					token := parts[1]
 
@@ -61,9 +63,10 @@ func AuthOptionalMiddleware(cfg *config.ServerConfig, log logger.Logger) func(ht
 						log.Warnf("invalid token", map[string]interface{}{"error": err.Error()})
 					}
 				} else {
-					log.Warn("invalid authorization format")
+					log.Warnf("invalid authorization format", map[string]interface{}{"auth_header": authHeader})
 				}
 			}
+
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
