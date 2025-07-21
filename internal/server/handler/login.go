@@ -89,7 +89,7 @@ func LoginHandler(cfg *config.ServerConfig, log logger.Logger, db database.Datab
 
 		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
 			log.Warnf("invalid password", map[string]interface{}{"username": req.Username})
-			http.Error(w, "Invalid password", http.StatusUnauthorized)
+			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 			return
 		}
 
