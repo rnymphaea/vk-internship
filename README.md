@@ -1,4 +1,5 @@
 # 🛒 VK-internship - marketplace API
+[![Go Version](https://img.shields.io/badge/go-1.24-blue.svg)](https://golang.org/)
 
 ## 📋 Оглавление
 - [🌟 Обзор проекта](#-обзор-проекта)
