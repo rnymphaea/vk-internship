@@ -1,7 +1,13 @@
 package app
 
 import (
+	"context"
 	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"vk-internship/internal/cache"
 	"vk-internship/internal/config"
@@ -41,7 +47,33 @@ func Run() {
 	}
 
 	app.Logger.Info("config loaded successfully")
-	app.Server.Start()
+
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		if err := app.Server.Start(); err != nil && err != http.ErrServerClosed {
+			app.Logger.Error(err, "failed to start server")
+		}
+	}()
+
+	<-done
+	app.Logger.Info("server is shutting down...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	if err := app.Server.Stop(ctx); err != nil {
+		app.Logger.Error(err, "failed to shutdown server")
+	}
+
+	app.Database.Close()
+
+	if err := app.Cache.Close(); err != nil {
+		app.Logger.Error(err, "failed to close cache")
+	}
+
+	app.Logger.Info("server stopped gracefully")
 }
 
 func (app *App) registerComponents(loggercfg *config.LoggerConfig, servercfg *config.ServerConfig, storagecfg *config.StorageConfig) error {

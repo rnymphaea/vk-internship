@@ -9,6 +9,7 @@ import (
 
 type Database interface {
 	Ping(ctx context.Context) error
+
 	CreateUser(user *model.User) (*model.User, error)
 	GetUserByUsername(username string) (*model.User, error)
 
@@ -17,6 +18,8 @@ type Database interface {
 	GetAd(ctx context.Context, id string) (*model.Advertisement, error)
 	UpdateAd(ctx context.Context, ad *model.Advertisement) (*model.Advertisement, error)
 	DeleteAd(ctx context.Context, id, authorID string) error
+
+	Close()
 }
 
 var (

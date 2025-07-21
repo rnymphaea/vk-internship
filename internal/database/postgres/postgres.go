@@ -52,3 +52,7 @@ func (p *PostgresDB) Ping(ctx context.Context) error {
 	p.log.Debug("ping postgres")
 	return p.db.Ping(ctx)
 }
+
+func (p *PostgresDB) Close() {
+	p.db.Close()
+}
