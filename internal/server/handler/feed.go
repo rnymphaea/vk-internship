@@ -11,6 +11,8 @@ import (
 	"vk-internship/internal/logger"
 )
 
+// FeedResponse представляет ответ с лентой объявлений
+// @Description Ответ со списком объявлений и пагинацией
 type FeedResponse struct {
 	Ads        []AdResponse `json:"ads"`
 	Page       int          `json:"page"`
@@ -19,6 +21,8 @@ type FeedResponse struct {
 	TotalPages int          `json:"total_pages"`
 }
 
+// AdResponse представляет одно объявление в ответе
+// @Description Информация об объявлении
 type AdResponse struct {
 	ID             string    `json:"id"`
 	AuthorUsername string    `json:"author_username"`
@@ -35,6 +39,23 @@ var ValidSorts = map[string]struct{}{
 	"price":      {},
 }
 
+// GetAdsHandler обрабатывает запрос на получение списка объявлений
+// @Summary Получить список объявлений
+// @Description Возвращает пагинированный список объявлений с возможностью фильтрации и сортировки
+// @Tags ads
+// @Accept json
+// @Produce json
+// @Param page query int false "Номер страницы" default(1) minimum(1)
+// @Param page_size query int false "Количество элементов на странице" default(10) minimum(1) maximum(100)
+// @Param sort_by query string false "Поле для сортировки (created_at, price)" default(created_at) Enums(created_at, price)
+// @Param order query string false "Порядок сортировки (ASC, DESC)" default(DESC) Enums(ASC, DESC)
+// @Param min_price query number false "Минимальная цена"
+// @Param max_price query number false "Максимальная цена"
+// @Security ApiKeyAuth
+// @Success 200 {object} FeedResponse
+// @Failure 400 {string} string "Неверные параметры запроса"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Router /ads [get]
 func GetAdsHandler(log logger.Logger, db database.Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		query := r.URL.Query()

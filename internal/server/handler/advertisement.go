@@ -16,6 +16,8 @@ import (
 	"vk-internship/internal/utils"
 )
 
+// CreateAdRequest представляет запрос на создание объявления
+// @Description Данные для создания нового объявления
 type CreateAdRequest struct {
 	Caption     string  `json:"caption" validate:"required,min=3,max=128"`
 	Description string  `json:"description" validate:"required,max=1024"`
@@ -23,6 +25,8 @@ type CreateAdRequest struct {
 	Price       float64 `json:"price" validate:"required,min=0"`
 }
 
+// CreateAdResponse представляет ответ после создания объявления
+// @Description Информация о созданном объявлении
 type CreateAdResponse struct {
 	ID          string    `json:"id"`
 	AuthorID    string    `json:"author_id"`
@@ -33,6 +37,19 @@ type CreateAdResponse struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
+// CreateAdHandler создает новое объявление
+// @Security BearerAuth
+// @Summary Создать объявление
+// @Description Создает новое объявление от имени авторизованного пользователя
+// @Tags ads
+// @Accept json
+// @Produce json
+// @Param request body CreateAdRequest true "Данные объявления"
+// @Success 201 {object} CreateAdResponse
+// @Failure 400 {object} map[string]string "Неверный формат запроса или ошибки валидации"
+// @Failure 401 {string} string "Не авторизован"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Router /ads [post]
 func CreateAdHandler(log logger.Logger, db database.Database, cache cache.Cache) http.HandlerFunc {
 	validate := utils.NewValidator()
 
@@ -110,6 +127,8 @@ func CreateAdHandler(log logger.Logger, db database.Database, cache cache.Cache)
 	}
 }
 
+// GetAdResponse представляет информацию об объявлении
+// @Description Полная информация об объявлении
 type GetAdResponse struct {
 	ID             string    `json:"id"`
 	AuthorUsername string    `json:"author_username"`
@@ -121,6 +140,19 @@ type GetAdResponse struct {
 	IsOwner        *bool     `json:"is_owner,omitempty"`
 }
 
+// GetAdHandler возвращает информацию об объявлении
+// @Summary Получить объявление
+// @Description Возвращает полную информацию об объявлении по ID
+// @Tags ads
+// @Accept json
+// @Produce json
+// @Param id path string true "ID объявления"
+// @Security ApiKeyAuth
+// @Success 200 {object} GetAdResponse
+// @Failure 400 {string} string "Неверный ID объявления"
+// @Failure 404 {string} string "Объявление не найдено"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Router /ads/{id} [get]
 func GetAdHandler(log logger.Logger, db database.Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		adID := chi.URLParam(r, "id")
@@ -171,6 +203,22 @@ func GetAdHandler(log logger.Logger, db database.Database) http.HandlerFunc {
 	}
 }
 
+// DeleteAdHandler удаляет объявление
+// @Security BearerAuth
+// @Summary Удалить объявление
+// @Description Удаляет объявление по ID (только для автора объявления)
+// @Tags ads
+// @Accept json
+// @Produce json
+// @Param id path string true "ID объявления"
+// @Security BearerAuth
+// @Success 204 "Объявление успешно удалено"
+// @Failure 400 {string} string "Неверный ID объявления"
+// @Failure 401 {string} string "Не авторизован"
+// @Failure 403 {string} string "Нет прав на удаление"
+// @Failure 404 {string} string "Объявление не найдено"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Router /ads/{id} [delete]
 func DeleteAdHandler(log logger.Logger, db database.Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID, ok := r.Context().Value("userID").(string)
@@ -200,6 +248,8 @@ func DeleteAdHandler(log logger.Logger, db database.Database) http.HandlerFunc {
 	}
 }
 
+// UpdateAdRequest представляет запрос на обновление объявления
+// @Description Данные для обновления объявления (все поля опциональны)
 type UpdateAdRequest struct {
 	Caption     string  `json:"caption" validate:"omitempty,min=3,max=128"`
 	Description string  `json:"description" validate:"omitempty,max=1024"`
@@ -207,6 +257,8 @@ type UpdateAdRequest struct {
 	Price       float64 `json:"price" validate:"omitempty,min=0"`
 }
 
+// UpdateAdResponse представляет ответ после обновления объявления
+// @Description Информация об обновленном объявлении
 type UpdateAdResponse struct {
 	ID          string    `json:"id"`
 	Caption     string    `json:"caption"`
@@ -217,6 +269,23 @@ type UpdateAdResponse struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
+// UpdateAdHandler обновляет объявление
+// @Security ApiKeyAuth
+// @Summary Обновить объявление
+// @Description Обновляет информацию об объявлении (только для автора объявления)
+// @Tags ads
+// @Accept json
+// @Produce json
+// @Param id path string true "ID объявления"
+// @Param request body UpdateAdRequest true "Данные для обновления"
+// @Security BearerAuth
+// @Success 200 {object} UpdateAdResponse
+// @Failure 400 {object} map[string]string "Неверный формат запроса или ошибки валидации"
+// @Failure 401 {string} string "Не авторизован"
+// @Failure 403 {string} string "Нет прав на обновление"
+// @Failure 404 {string} string "Объявление не найдено"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Router /ads/{id} [put]
 func UpdateAdHandler(log logger.Logger, db database.Database) http.HandlerFunc {
 	validate := utils.NewValidator()
 

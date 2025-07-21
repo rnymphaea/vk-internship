@@ -1,0 +1,500 @@
+definitions:
+  handler.AdResponse:
+    description: Информация об объявлении
+    properties:
+      author_username:
+        type: string
+      caption:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      image_url:
+        type: string
+      is_owner:
+        type: boolean
+      price:
+        type: number
+    type: object
+  handler.CreateAdRequest:
+    description: Данные для создания нового объявления
+    properties:
+      caption:
+        maxLength: 128
+        minLength: 3
+        type: string
+      description:
+        maxLength: 1024
+        type: string
+      image_url:
+        type: string
+      price:
+        minimum: 0
+        type: number
+    required:
+    - caption
+    - description
+    - price
+    type: object
+  handler.CreateAdResponse:
+    description: Информация о созданном объявлении
+    properties:
+      author_id:
+        type: string
+      caption:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      image_url:
+        type: string
+      price:
+        type: number
+    type: object
+  handler.FeedResponse:
+    description: Ответ со списком объявлений и пагинацией
+    properties:
+      ads:
+        items:
+          $ref: '#/definitions/handler.AdResponse'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  handler.GetAdResponse:
+    description: Полная информация об объявлении
+    properties:
+      author_username:
+        type: string
+      caption:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      image_url:
+        type: string
+      is_owner:
+        type: boolean
+      price:
+        type: number
+    type: object
+  handler.LoginRequest:
+    description: Запрос для аутентификации пользователя
+    properties:
+      password:
+        maxLength: 64
+        minLength: 8
+        type: string
+      username:
+        maxLength: 32
+        minLength: 3
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  handler.LoginResponse:
+    description: Ответ после успешной аутентификации пользователя
+    properties:
+      created_at:
+        type: string
+      current_user:
+        type: string
+      id:
+        type: string
+      is_authorized:
+        type: boolean
+      username:
+        type: string
+    type: object
+  handler.RegistrationRequest:
+    description: Запрос для регистрации нового пользователя
+    properties:
+      password:
+        maxLength: 64
+        minLength: 8
+        type: string
+      username:
+        maxLength: 32
+        minLength: 3
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  handler.RegistrationResponse:
+    description: Ответ после успешной регистрации пользователя
+    properties:
+      created_at:
+        type: string
+      current_user:
+        type: string
+      id:
+        type: string
+      is_authorized:
+        type: boolean
+      token:
+        type: string
+      username:
+        type: string
+    type: object
+  handler.UpdateAdRequest:
+    description: Данные для обновления объявления (все поля опциональны)
+    properties:
+      caption:
+        maxLength: 128
+        minLength: 3
+        type: string
+      description:
+        maxLength: 1024
+        type: string
+      image_url:
+        type: string
+      price:
+        minimum: 0
+        type: number
+    type: object
+  handler.UpdateAdResponse:
+    description: Информация об обновленном объявлении
+    properties:
+      caption:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      image_url:
+        type: string
+      price:
+        type: number
+      updated_at:
+        type: string
+    type: object
+info:
+  contact: {}
+  title: VK Internship API
+  version: "1.0"
+paths:
+  /ads:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает пагинированный список объявлений с возможностью фильтрации
+        и сортировки
+      parameters:
+      - default: 1
+        description: Номер страницы
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 10
+        description: Количество элементов на странице
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      - default: created_at
+        description: Поле для сортировки (created_at, price)
+        enum:
+        - created_at
+        - price
+        in: query
+        name: sort_by
+        type: string
+      - default: DESC
+        description: Порядок сортировки (ASC, DESC)
+        enum:
+        - ASC
+        - DESC
+        in: query
+        name: order
+        type: string
+      - description: Минимальная цена
+        in: query
+        name: min_price
+        type: number
+      - description: Максимальная цена
+        in: query
+        name: max_price
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.FeedResponse'
+        "400":
+          description: Неверные параметры запроса
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Получить список объявлений
+      tags:
+      - ads
+    post:
+      consumes:
+      - application/json
+      description: Создает новое объявление от имени авторизованного пользователя
+      parameters:
+      - description: Данные объявления
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateAdRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.CreateAdResponse'
+        "400":
+          description: Неверный формат запроса или ошибки валидации
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Не авторизован
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Создать объявление
+      tags:
+      - ads
+  /ads/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет объявление по ID (только для автора объявления)
+      parameters:
+      - description: ID объявления
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Объявление успешно удалено
+        "400":
+          description: Неверный ID объявления
+          schema:
+            type: string
+        "401":
+          description: Не авторизован
+          schema:
+            type: string
+        "403":
+          description: Нет прав на удаление
+          schema:
+            type: string
+        "404":
+          description: Объявление не найдено
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      - BearerAuth: []
+      summary: Удалить объявление
+      tags:
+      - ads
+    get:
+      consumes:
+      - application/json
+      description: Возвращает полную информацию об объявлении по ID
+      parameters:
+      - description: ID объявления
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.GetAdResponse'
+        "400":
+          description: Неверный ID объявления
+          schema:
+            type: string
+        "404":
+          description: Объявление не найдено
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Получить объявление
+      tags:
+      - ads
+    put:
+      consumes:
+      - application/json
+      description: Обновляет информацию об объявлении (только для автора объявления)
+      parameters:
+      - description: ID объявления
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные для обновления
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateAdRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.UpdateAdResponse'
+        "400":
+          description: Неверный формат запроса или ошибки валидации
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Не авторизован
+          schema:
+            type: string
+        "403":
+          description: Нет прав на обновление
+          schema:
+            type: string
+        "404":
+          description: Объявление не найдено
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      - BearerAuth: []
+      summary: Обновить объявление
+      tags:
+      - ads
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Проверяет учетные данные пользователя и возвращает JWT токен
+      parameters:
+      - description: Данные для входа
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.LoginResponse'
+        "400":
+          description: Неверный формат запроса или ошибки валидации
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Неверные учетные данные
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Аутентификация пользователя
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Создает нового пользователя в системе
+      parameters:
+      - description: Данные для регистрации
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.RegistrationResponse'
+        "400":
+          description: Неверный формат запроса или ошибки валидации
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Пользователь с таким именем уже существует
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Регистрация нового пользователя
+      tags:
+      - auth
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -23,11 +23,31 @@ down:
 
 .PHONY: register
 register:
-	curl -v -d '{"username":"username1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:8080/register
+ifndef TOKEN
+	$(warning No TOKEN provided, making request without authentication)
+	curl -v -d '{"username":"username123", "password":"password"}' \
+		-H "Content-Type: application/json" \
+		-X POST http://localhost:8080/register
+else
+	curl -v -d '{"username":"username123", "password":"password"}' \
+		-H "Content-Type: application/json" \
+		-H "Authorization: Bearer $(TOKEN)" \
+		-X POST http://localhost:8080/register
+endif
 
 .PHONY: login
 login:
-	curl -v -d '{"username":"username1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:8080/login
+ifndef TOKEN
+	$(warning No TOKEN provided, making request without authentication)
+	curl -v -d '{"username":"username12", "password":"password"}' \
+		-H "Content-Type: application/json" \
+		-X POST http://localhost:8080/login
+else
+	curl -v -d '{"username":"username1", "password":"password"}' \
+		-H "Content-Type: application/json" \
+		-H "Authorization: Bearer $(TOKEN)" \
+		-X POST http://localhost:8080/login
+endif
 
 .PHONY: create_ad
 create_ad:

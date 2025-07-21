@@ -14,21 +14,49 @@ import (
 	"vk-internship/internal/utils"
 )
 
+// LoginRequest представляет запрос на вход
+// @Description Запрос для аутентификации пользователя
 type LoginRequest struct {
 	Username string `json:"username" validate:"required,min=3,max=32,alphanum"`
 	Password string `json:"password" validate:"required,min=8,max=64"`
 }
 
+// LoginResponse представляет ответ при успешном входе
+// @Description Ответ после успешной аутентификации пользователя
 type LoginResponse struct {
-	ID        string    `json:"id"`
-	Username  string    `json:"username"`
-	CreatedAt time.Time `json:"created_at"`
+	ID           string    `json:"id"`
+	Username     string    `json:"username"`
+	CreatedAt    time.Time `json:"created_at"`
+	CurrentUser  *string   `json:"current_user,omitempty"`
+	IsAuthorized bool      `json:"is_authorized"`
 }
 
+// LoginHandler обрабатывает запросы на вход
+// @Summary Аутентификация пользователя
+// @Description Проверяет учетные данные пользователя и возвращает JWT токен
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body LoginRequest true "Данные для входа"
+// @Success 200 {object} LoginResponse
+// @Failure 400 {object} map[string]string "Неверный формат запроса или ошибки валидации"
+// @Failure 401 {string} string "Неверные учетные данные"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Router /login [post]
 func LoginHandler(cfg *config.ServerConfig, log logger.Logger, db database.Database) http.HandlerFunc {
 	validate := utils.NewValidator()
 
 	return func(w http.ResponseWriter, r *http.Request) {
+		var (
+			currentUserID string
+			isAuthorized  bool
+		)
+
+		if ctxVal := r.Context().Value("userID"); ctxVal != nil {
+			currentUserID = ctxVal.(string)
+			isAuthorized = true
+		}
+
 		var req LoginRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			log.Warnf("invalid request body", map[string]interface{}{"error": err.Error()})
@@ -75,9 +103,14 @@ func LoginHandler(cfg *config.ServerConfig, log logger.Logger, db database.Datab
 		w.Header().Set("Authorization", "Bearer "+token)
 
 		response := LoginResponse{
-			ID:        user.ID,
-			Username:  user.Username,
-			CreatedAt: user.CreatedAt,
+			ID:           user.ID,
+			Username:     user.Username,
+			CreatedAt:    user.CreatedAt,
+			IsAuthorized: isAuthorized,
+		}
+
+		if isAuthorized {
+			response.CurrentUser = &currentUserID
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -87,8 +120,10 @@ func LoginHandler(cfg *config.ServerConfig, log logger.Logger, db database.Datab
 		}
 
 		log.Infof("user logged in", map[string]interface{}{
-			"user_id":  user.ID,
-			"username": user.Username,
+			"user_id":       user.ID,
+			"username":      user.Username,
+			"current_user":  currentUserID,
+			"is_authorized": isAuthorized,
 		})
 	}
 }
