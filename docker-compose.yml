@@ -30,7 +30,7 @@ services:
       - .env
     volumes:
       - ./migrations/${DB_TYPE}:/migrations
-    command: ["-path", "/migrations", "-database",  "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB_NAME}?sslmode=${POSTGRES_SSL_MODE}", "up" ]
+    command: ["-path", "/migrations", "-database",  "${DB_URL}", "up" ]
     depends_on:
       postgres:
         condition: service_healthy
