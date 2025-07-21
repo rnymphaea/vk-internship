@@ -1,10 +1,10 @@
 # 🛒 VK-internship - marketplace API
 
 ![Go](https://img.shields.io/badge/Go-1.24+-00ADD8?logo=go)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16+-336791?logo=postgresql)
-![Redis](https://img.shields.io/badge/Redis-7+-DC382D?logo=redis)
-![Docker](https://img.shields.io/badge/Docker-24+-2496ED?logo=docker)
-![Swagger](https://img.shields.io/badge/Swagger-3.0-85EA2D?logo=swagger)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?logo=postgresql)
+![Redis](https://img.shields.io/badge/Redis-8+-DC382D?logo=redis)
+![Docker](https://img.shields.io/badge/Dockerlogo=docker)
+![Swagger](https://img.shields.io/badge/Swagger?logo=swagger)
 
 ## 📋 Оглавление
 - [🌟 Обзор проекта](#-обзор-проекта)
