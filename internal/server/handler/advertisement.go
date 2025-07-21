@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -8,7 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"vk-internship/internal/config"
+	"vk-internship/internal/cache"
 	"vk-internship/internal/database"
 	"vk-internship/internal/database/model"
 	"vk-internship/internal/logger"
@@ -32,7 +33,7 @@ type CreateAdResponse struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-func CreateAdHandler(cfg *config.ServerConfig, log logger.Logger, db database.Database) http.HandlerFunc {
+func CreateAdHandler(log logger.Logger, db database.Database, cache cache.Cache) http.HandlerFunc {
 	validate := utils.NewValidator()
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -74,6 +75,12 @@ func CreateAdHandler(cfg *config.ServerConfig, log logger.Logger, db database.Da
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
+
+		go func() {
+			if err := cache.UpdateFeed(context.TODO(), *createdAd); err != nil {
+				log.Warn("failed to update feed cache")
+			}
+		}()
 
 		response := CreateAdResponse{
 			ID:          createdAd.ID,

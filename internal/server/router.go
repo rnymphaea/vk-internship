@@ -4,7 +4,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
-	_ "vk-internship/internal/cache"
+	"vk-internship/internal/cache"
 	"vk-internship/internal/config"
 	"vk-internship/internal/database"
 	"vk-internship/internal/logger"
@@ -12,7 +12,7 @@ import (
 	"vk-internship/internal/server/middleware"
 )
 
-func NewRouter(cfg *config.ServerConfig, log logger.Logger, db database.Database) *chi.Mux {
+func NewRouter(cfg *config.ServerConfig, log logger.Logger, db database.Database, cache cache.Cache) *chi.Mux {
 	router := chi.NewMux()
 	router.Use(chimiddleware.RequestID)
 	router.Use(chimiddleware.RealIP)
@@ -28,7 +28,7 @@ func NewRouter(cfg *config.ServerConfig, log logger.Logger, db database.Database
 
 	router.Group(func(r chi.Router) {
 		r.Use(middleware.AuthRequiredMiddleware(cfg, log))
-		r.Post("/ads", handler.CreateAdHandler(cfg, log, db))
+		r.Post("/ads", handler.CreateAdHandler(log, db, cache))
 		r.Delete("/ads/{id}", handler.DeleteAdHandler(log, db))
 		r.Put("/ads/{id}", handler.UpdateAdHandler(log, db))
 	})
